@@ -152,37 +152,45 @@ parsed_pdf = parser.from_file("file.pdf")
 data = parsed_pdf['content']
 
 # generating reference numbers for abstracts
-ref_nums = [i for i in range(100, 116) if not i == 103]
+RANGE_START = 100
+RANGE_END = 115
+
+ref_nums = [i for i in range(RANGE_START, RANGE_END + 1) if not i == 103]
 
 # generating frame indexes for separate abstracts
 frames = frame_indexes(ref_nums, data)
 
 parsed_data = []
-# titles = []
-# abstracts = []
-# how_to_split = []
 
 for i, ref in enumerate(ref_nums):
-   
-    parsed_data.append(['P'+str(ref),])
+    parsed_data.append([])
+    # extracting data frame
     data_frm = data[frames[ref][0]:frames[ref][1]]
     
-    # To find title and last fragment
+    # searching for the title and last fragment
     title, element = topic_title(data_frm)
-    parsed_data[i].append(title)
     carrier1 = data_frm.find(element) + len(element)
     
-    # to find abstract
+    # searching for the abstract
     found, carrier_abstract = presentation_abstract(data_frm)
     if found:
-        parsed_data[i].append(data_frm[carrier1:carrier_abstract])
-        parsed_data[i].append(data_frm[carrier_abstract:frames[ref][1]])
+        parsed_data[i].extend((data_frm[carrier1:carrier_abstract].strip(),
+                              '',
+                              '',
+                              'P'+str(ref),
+                              title,
+                              data_frm[carrier_abstract:frames[ref][1]].strip()))
     else:
-        parsed_data[i].append('Author not found')
-        parsed_data[i].append('Abstract not found')
+        parsed_data[i].extend(('Author not found',
+                              '',
+                              '',
+                              'P'+str(ref),
+                              title,
+                              'Abstract not found'))
     
     for el in parsed_data[i]:
         print(el)
 
 df = pd.DataFrame(parsed_data)
-append_df_to_excel('task.xlsx',df, header=None, index=False)
+append_df_to_excel('Data Entry - 5th World Psoriasis & Psoriatic Arthritis Conference 2018 - Case format (2).xlsx',
+                   df, header=None, index=False)
