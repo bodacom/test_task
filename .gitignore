@@ -130,6 +130,5 @@ dmypy.json
 
 # Custom files for the project testing
 *.json
-requirements.txt
 *.pdf
 *.xlsx
